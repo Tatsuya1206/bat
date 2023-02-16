@@ -16,6 +16,9 @@ SET FILE_DIR=
 SET DESTINATION_DIR=
 SET JS_DIR=
 
+SET TMP_WEB_DIR=web_%2
+SET WEB_DIR=%TMP_WEB_DIR:~0,12%
+
 SET LOG_DIR=%~dp0\Log
 SET SYS_DATE=%date:/=%
 SET SYS_TIME=%time%
@@ -74,18 +77,32 @@ IF %fullDeploy:Y=Y%==Y (
 ECHO.
 ECHO デプロイ中...
 ECHO. >> %LOG_DIR%\%LOG_FILE%
-ECHO ############################## >> %LOG_DIR%\%LOG_FILE%
-ECHO デプロイ_%SYS_DATETIME% >> %LOG_DIR%\%LOG_FILE%
-ECHO ############################## >> %LOG_DIR%\%LOG_FILE%
+ECHO ############################################################################### >> %LOG_DIR%\%LOG_FILE%
+ECHO ##################### デプロイ_%SYS_DATETIME% >> %LOG_DIR%\%LOG_FILE% ##########################
+ECHO ############################################################################### >> %LOG_DIR%\%LOG_FILE%
 
 @REM dll,pdb のデプロイ
 IF "%1"=="1" (
     ROBOCOPY %SOURCE_DIR%%BIN_DIR% %DESTINATION_DIR%%BIN_DIR% *.dll *.pdb >>%LOG_DIR%\%LOG_FILE% 2>&1
 )
+
 @REM aspx のデプロイ
-FOR /R %SOURCE_DIR%%FILE_DIR% %%a IN (%TARGET_ID%.aspx) DO XCOPY %%a %DESTINATION_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 2>&1
+IF "%2"=="" (
+@REM FOR /R %SOURCE_DIR%%FILE_DIR% %%a IN (%TARGET_ID%.aspx) DO XCOPY %%a %DESTINATION_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 2>&1
+    FOR /R %SOURCE_DIR%%FILE_DIR% %%a IN (%TARGET_ID%.aspx) DO XCOPY %%a %DESTINATION_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 2>&1
+) ELSE (
+@REM XCOPY %SOURCE_DIR%%FILE_DIR%\%WEB_DIR%\%TARGET_ID%.aspx %DESTINATION_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 2>&1
+    XCOPY %SOURCE_DIR%%FILE_DIR%\%WEB_DIR%\%TARGET_ID%.aspx %DESTINATION_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 
+)
+
 @REM js のデプロイ
-FOR /R %SOURCE_DIR%%FILE_DIR% %%a IN (%TARGET_ID%.js) DO XCOPY %%a %DESTINATION_DIR%%JS_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 2>&1
+IF "%2"=="" (
+@REM FOR /R %SOURCE_DIR%%FILE_DIR% %%a IN (%TARGET_ID%.js) DO XCOPY %%a %DESTINATION_DIR%%JS_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 2>&1
+     FOR /R %SOURCE_DIR%%FILE_DIR% %%a IN (%TARGET_ID%.js) DO XCOPY %%a %DESTINATION_DIR%%JS_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE%
+) ELSE (
+@REM XCOPY %SOURCE_DIR%%FILE_DIR%\%WEB_DIR%%JS_DIR%\%TARGET_ID%.js %DESTINATION_DIR%%JS_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 2>&1
+    XCOPY %SOURCE_DIR%%FILE_DIR%\%WEB_DIR%%JS_DIR%\%TARGET_ID%.js %DESTINATION_DIR%%JS_DIR% /Y /D >>%LOG_DIR%\%LOG_FILE% 
+)
 
 :END
 ECHO.
