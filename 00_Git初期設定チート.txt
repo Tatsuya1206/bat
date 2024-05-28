@@ -1,0 +1,102 @@
+ローカルPCでGit管理する方法。
+
+1.ローカルにリモートリポジトリのディレクトリ作成
+　〇〇.git　とする。
+2.作成したディレクトリにリモートリポジトリ作成
+　gitコマンド
+　git init --bare --shared
+
+3.ローカルリポジトリ用のディレクトリ作成
+4.作成したディレクトリで　git init する。
+　gitコマンド
+　git init
+
+5.リモートリポジトリに連携する。（リモートに作成したディレクトリをローカルだということを認識させる。）
+　gitコマンド
+　git remote add origin 〇〇.git（絶対パス or カレントディレクトリからの相対パス）
+
+6.ローカルリポジトリに既存のファイルを配置する or そのままの状態で、
+　commit と push　する。＝　masterブランチ作成
+
+　gitコマンド
+　・ステージング
+　　　git add .
+　・コミット
+　　　git commit -m "コメント"
+　・プッシュ
+　　　git push
+
+7.必要であれば、各ブランチの作成
+　例）
+    名前        用途        派生元        名付け例
+    develop     開発用      master       develop/[バージョン番号など]
+    feature     修正用      develop      feature/[派生元バージョン番号など]/[機能名など]
+    release     リリース用   develop      release/[バージョン番号]
+    hotfix      緊急対応用   master       hotfix/[バージョン番号]/[バグ識別名] or hotfix/[バグ識別名]
+    support     保守対応用   master       support/[バージョン番号]
+
+    gitコマンド（ローカルで作る場合）
+        developブランチを作る場合
+            git checkout -b develop/V2.0 master
+        featureブランチを作る場合
+            git checkout -b feature/V2.0 develop/V2.0
+
+    gitコマンド（リモートで作る場合）
+        developブランチを作る場合
+            git checkout -b develop/V2.0 origin/master
+        featureブランチを作る場合
+            git checkout -b feature/V2.0 develop/V2.0
+
+    ブランチをリモートリポジトリに反映
+    gitコマンド
+    git push -u origin 作成したブランチ名
+
+
+補足
+1.ブランチ一覧確認。
+　gitコマンド
+　git branch -a
+
+2.ブランチ切り替え。
+　gitコマンド
+　git checkout ブランチ名
+
+3.クローン
+　クローン先が完全に空であること。or まだ作成されていないディレクトリであること。
+
+　gitコマンド（cloneしたい先がある場合）
+　git clone リモートリポジトリ.gitのパス .
+
+　gitコマンド（cloneしたい先がない場合）
+　git clone リモートリポジトリ.gitのパス 作成したいディレクトリパス
+
+4.プッシュの取消（履歴が残らない修正：1人だけの開発ならあり。）
+　・リモート、ローカルともども１つ前のコミットに戻す場合
+　　gitコマンド
+　　git reset --hard HEAD^
+
+　・リモートを元に戻す場合（ローカルは今のままにしたい）
+　　gitコマンド
+　　git reset --soft HEAD^
+
+　・git reset後に修正を行うと、以前のコミットとコンフリクトするので、
+　　git push -f origin HEAD　で強制プッシュする。
+　　
+5.プッシュの取消（履歴が残る修正：安全）
+　・コミットの取消
+　　git revert HEAD
+
+　・コミットの取消（したこと）をプッシュする。
+　　git push origin HEAD
+
+6.コミットログの確認
+　git log
+
+7.ステージング（.＝全ファイル）
+　　　git add .
+　　　git add hoge.txt
+
+8.新規、変更ファイルの確認
+　git status （ローカルリポジトリで実行）
+
+
